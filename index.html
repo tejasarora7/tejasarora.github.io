@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tejas Arora — Portfolio</title>
+  <style>
+    /* ----------------------
+       THEME & RESET
+    -----------------------*/
+    :root{
+      --bg-black:#0a0f14;
+      --ink:#d7f9ff;
+      --blue:#2b9df4;
+      --green:#18e06f;
+      --green-2:#00c853;
+      --muted:#8fb6c3;
+      --card:#0f1722;
+      --glow: 0 0 20px rgba(24,224,111,.35), 0 0 40px rgba(43,157,244,.25);
+    }
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    html,body{ height:100%; }
+    body{
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--ink);
+      background: var(--bg-black);
+      overflow-x: hidden;
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="6" cy="6" r="6" fill="%2318e06f"/></svg>') 6 6, crosshair;
+    }
+
+    /* ----------------------
+       ANIMATED CYBER GRID BG
+    -----------------------*/
+    .bg{
+      position: fixed; inset:0; z-index:-2;
+      background:
+        radial-gradient(60vmax 60vmax at 10% 10%, rgba(0,200,83,.15), transparent 60%),
+        radial-gradient(60vmax 60vmax at 90% 20%, rgba(43,157,244,.15), transparent 60%),
+        radial-gradient(60vmax 60vmax at 50% 90%, rgba(0,255,170,.12), transparent 60%),
+        #05090d;
+    }
+    .scanlines{
+      position: fixed; inset:0; z-index:-1; pointer-events:none; opacity:.4;
+      background:
+        repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,255,180,.05) 2px 3px),
+        linear-gradient(120deg, rgba(0,255,140,.08), rgba(0,140,255,.08));
+      mix-blend-mode: screen;
+      animation: drift 12s linear infinite;
+      background-size: auto, 200% 200%;
+    }
+    @keyframes drift{ to{ background-position: 0 100vh, 200% 200%; } }
+
+    /* Moving network dots */
+    .particles{ position:fixed; inset:0; z-index:-1; pointer-events:none; }
+    .particles::before, .particles::after{
+      content:""; position:absolute; inset:-20%;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(24,224,111,.25) 0 2px, transparent 3px),
+        radial-gradient(circle at 30% 70%, rgba(43,157,244,.25) 0 2px, transparent 3px),
+        radial-gradient(circle at 80% 30%, rgba(24,224,111,.25) 0 2px, transparent 3px),
+        radial-gradient(circle at 60% 60%, rgba(43,157,244,.25) 0 2px, transparent 3px),
+        radial-gradient(circle at 20% 85%, rgba(24,224,111,.25) 0 2px, transparent 3px),
+        radial-gradient(circle at 70% 85%, rgba(0,255,200,.25) 0 2px, transparent 3px);
+      transform:translateZ(0);
+      animation: floatDots 30s linear infinite;
+    }
+    .particles::after{ animation-duration: 40s; opacity:.6; filter: blur(1px); }
+    @keyframes floatDots{ to{ transform: translate3d(-10vw,-10vh,0); } }
+
+    /* ----------------------
+       LAYOUT BASICS
+    -----------------------*/
+    .wrap{ width:min(1200px, 92vw); margin:0 auto; }
+    header{ position:sticky; top:0; backdrop-filter: blur(6px); background:linear-gradient(180deg, rgba(5,9,13,.85), rgba(5,9,13,.35)); border-bottom:1px solid rgba(24,224,111,.15); z-index:10; }
+    nav{ display:flex; align-items:center; justify-content:space-between; padding:14px 0; }
+    .brand{ display:flex; gap:12px; align-items:center; text-decoration:none; color:var(--ink); }
+    .logo{
+      width:40px; height:40px; border-radius:10px; background: conic-gradient(from 180deg, var(--green), var(--blue), var(--green));
+      box-shadow: var(--glow);
+      position:relative; isolation:isolate;
+    }
+    .logo::after{ content:""; position:absolute; inset:6px; border-radius:8px; background:#0c141c; }
+    .brand span{ font-weight:700; letter-spacing:.5px; }
+
+    .pill{
+      padding:8px 14px; border:1px solid rgba(43,157,244,.35); border-radius:999px; color:var(--muted); font-size:.9rem;
+      background:linear-gradient(180deg, rgba(15,23,34,.9), rgba(8,13,19,.9));
+    }
+
+    /* ----------------------
+       HERO SECTION
+    -----------------------*/
+    .hero{ position:relative; padding:80px 0 40px; }
+    .hero-grid{ display:grid; grid-template-columns: 1.1fr .9fr; gap:min(6vw,48px); align-items:center; }
+    .title{ font-size: clamp(28px, 4.5vw, 64px); line-height:1.05; font-weight:900; }
+    .sub{ margin-top:14px; color:var(--muted); font-size: clamp(14px, 1.4vw, 18px); }
+
+    .chiprow{ display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+    .chip{ padding:8px 12px; border-radius:999px; border:1px solid rgba(24,224,111,.35); color:#afffd2; background:linear-gradient(180deg, rgba(10,25,18,.8), rgba(6,18,14,.8)); box-shadow: inset 0 0 20px rgba(24,224,111,.15); font-size:.9rem; }
+
+    /* 3D CUBE — CSS ONLY */
+    .scene{ perspective: 1000px; height: 360px; display:grid; place-items:center; }
+    .cube{
+      width: 260px; height: 260px; position: relative; transform-style: preserve-3d;
+      animation: spin 18s linear infinite;
+      filter: drop-shadow(0 30px 40px rgba(0,0,0,.4));
+    }
+    .scene:hover .cube{ animation-play-state: paused; transform: rotateX(12deg) rotateY(-22deg) translateZ(0); }
+    .face{
+      position:absolute; inset:0; display:grid; place-items:center; font-weight:700; letter-spacing:1px;
+      background: linear-gradient(180deg, rgba(13,23,32,.95), rgba(6,13,20,.95));
+      border:1px solid rgba(43,157,244,.35);
+      box-shadow: inset 0 0 60px rgba(43,157,244,.15), inset 0 0 60px rgba(24,224,111,.12);
+    }
+    .face svg{ width: 120px; height: 120px; opacity:.95; }
+    .face:nth-child(1){ transform: translateZ(130px); }
+    .face:nth-child(2){ transform: rotateY(90deg) translateZ(130px); }
+    .face:nth-child(3){ transform: rotateY(180deg) translateZ(130px); }
+    .face:nth-child(4){ transform: rotateY(-90deg) translateZ(130px); }
+    .face:nth-child(5){ transform: rotateX(90deg) translateZ(130px); }
+    .face:nth-child(6){ transform: rotateX(-90deg) translateZ(130px); }
+    @keyframes spin{ to{ transform: rotateX(360deg) rotateY(360deg); } }
+
+    /* PROJECTS */
+    .section{ padding:64px 0; }
+    .section h2{ font-size: clamp(22px, 3vw, 36px); margin-bottom: 18px; }
+    .grid{ display:grid; gap:18px; grid-template-columns: repeat( auto-fit, minmax(260px, 1fr) ); }
+    .card{
+      position:relative; overflow:hidden; padding:18px; border-radius:14px;
+      background: linear-gradient(180deg, rgba(12,18,26,.95), rgba(9,14,21,.95));
+      border:1px solid rgba(24,224,111,.2);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .card:hover{ transform: translateY(-6px) rotateX(2deg) rotateY(-2deg); box-shadow: var(--glow); }
+    .card h3{ font-size: 1.1rem; margin-bottom:8px; color:#9eeec3; }
+    .card p{ color: var(--muted); line-height:1.4; }
+
+    /* CODE BLOCK */
+    pre{
+      background: #071017; border:1px solid rgba(43,157,244,.25); padding:14px; border-radius:12px; overflow:auto;
+      box-shadow: inset 0 0 30px rgba(43,157,244,.18);
+    }
+    code{ color:#a7ffcf; font-family: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    /* FOOTER */
+    footer{ padding:36px 0 72px; color:var(--muted); text-align:center; border-top:1px solid rgba(24,224,111,.15); }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px){ .hero-grid{ grid-template-columns: 1fr; } .scene{ height:300px; } .cube{ width:220px; height:220px; } .face:nth-child(1), .face:nth-child(2), .face:nth-child(3), .face:nth-child(4), .face:nth-child(5), .face:nth-child(6){ transform: translateZ(110px) rotateY(var(--ry,0)) rotateX(var(--rx,0)); } }
+  </style>
+</head>
+<body>
+  <!-- Animated background layers (green/blue/black theme) -->
+  <div class="bg"></div>
+  <div class="scanlines"></div>
+  <div class="particles"></div>
+
+  <header>
+    <div class="wrap">
+      <nav>
+        <a class="brand" href="#top" aria-label="Home - Tejas Arora">
+          <div class="logo" aria-hidden="true"></div>
+          <span>Tejas Arora</span>
+        </a>
+        <div class="pill">Cybersecurity • AI/ML • Tech</div>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top" class="wrap">
+    <!-- HERO -->
+    <section class="hero" aria-label="Intro">
+      <div class="hero-grid">
+        <div>
+          <h1 class="title">Hi, I'm <span style="color:var(--green)">Tejas Arora</span>.<br/> I break, secure, and build with <span style="color:var(--blue)">AI/ML</span> & <span style="color:var(--green)">Cybersecurity</span>.</h1>
+          <p class="sub">I enjoy tech-related work, love Linux, and write in Python & C. I completed my 12th in Jind and I'm excited to learn, hack, and create.</p>
+          <div class="chiprow" aria-label="Highlights">
+            <div class="chip">7+ C projects</div>
+            <div class="chip">5+ Python projects</div>
+            <div class="chip">Linux learner</div>
+            <div class="chip">Aspiring OS Builder</div>
+            <div class="chip">AI/ML & Security</div>
+          </div>
+        </div>
+        <div class="scene" aria-label="3D showcase">
+          <div class="cube" aria-hidden="true">
+            <!-- FACE: Cybersecurity lock (inline SVG) -->
+            <div class="face">
+              <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cybersecurity">
+                <defs>
+                  <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#18e06f"/>
+                    <stop offset="100%" stop-color="#2b9df4"/>
+                  </linearGradient>
+                </defs>
+                <path d="M48 6l28 12v22c0 26-16 38-28 48C36 78 20 66 20 40V18z" fill="none" stroke="url(#g1)" stroke-width="4"/>
+                <circle cx="48" cy="46" r="12" fill="none" stroke="#18e06f" stroke-width="4"/>
+                <rect x="36" y="58" width="24" height="12" rx="4" fill="#2b9df4" opacity=".7"/>
+              </svg>
+            </div>
+            <!-- FACE: AI brain -->
+            <div class="face">
+              <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AI/ML">
+                <path d="M20 54c0-12 10-22 22-22h12c12 0 22 10 22 22s-10 22-22 22H42C30 76 20 66 20 54z" fill="none" stroke="#2b9df4" stroke-width="4"/>
+                <circle cx="36" cy="50" r="4" fill="#18e06f"/>
+                <circle cx="60" cy="50" r="4" fill="#18e06f"/>
+                <path d="M48 50v10" stroke="#18e06f" stroke-width="4"/>
+                <path d="M36 24V8M60 24V8M20 54H6M90 54H76M24 72l-8 8M72 72l8 8" stroke="#2b9df4" stroke-width="3"/>
+              </svg>
+            </div>
+            <!-- FACE: Linux penguin stylized -->
+            <div class="face">
+              <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Linux">
+                <ellipse cx="48" cy="50" rx="20" ry="26" fill="none" stroke="#18e06f" stroke-width="4"/>
+                <circle cx="42" cy="36" r="4" fill="#2b9df4"/>
+                <circle cx="54" cy="36" r="4" fill="#2b9df4"/>
+                <path d="M40 64c6 6 10 6 16 0" stroke="#2b9df4" stroke-width="4"/>
+              </svg>
+            </div>
+            <!-- FACE: Code brackets -->
+            <div class="face">
+              <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Code">
+                <path d="M34 24l-18 24 18 24M62 24l18 24-18 24" fill="none" stroke="#2b9df4" stroke-width="6"/>
+                <path d="M56 16L40 80" stroke="#18e06f" stroke-width="4"/>
+              </svg>
+            </div>
+            <!-- FACE: Shield -->
+            <div class="face">
+              <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Shield">
+                <path d="M48 10l26 10v18c0 22-14 32-26 40-12-8-26-18-26-40V20z" fill="none" stroke="#18e06f" stroke-width="4"/>
+                <path d="M36 46l8 8 16-16" fill="none" stroke="#2b9df4" stroke-width="5"/>
+              </svg>
+            </div>
+            <!-- FACE: Chip -->
+            <div class="face">
+              <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Chip">
+                <rect x="22" y="22" width="52" height="52" rx="6" fill="none" stroke="#2b9df4" stroke-width="4"/>
+                <rect x="36" y="36" width="24" height="24" rx="4" fill="#18e06f" opacity=".8"/>
+                <g stroke="#2b9df4" stroke-width="3">
+                  <path d="M48 6v12M48 78v12M6 48h12M78 48h12M18 24l-8-8M78 78l8 8M18 78l-8 8M78 18l8-8"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT / FACTS -->
+    <section class="section" aria-label="About">
+      <h2>About Me</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Quick Facts</h3>
+          <p style="margin-top:8px">HI, MY NAME IS TEJAS ARORA. I AM INTERESTED IN CYBERSECURITY & AI/ML. I ENJOY TECH RELATED WORK. I HAVE COMPLETED MY 12TH FROM JIND. PYTHON IS ONE OF THE EASIEST LANGUAGE. LINUX OS WORKS BETTER AND I WANT TO LEARN IT. I WANT TO BUILD MY OWN OS.</p>
+        </div>
+        <div class="card">
+          <h3>Signature Snippet</h3>
+          <pre><code>print("HELLOWORLD")</code></pre>
+        </div>
+        <div class="card">
+          <h3>Projects Summary</h3>
+          <p>I've built <strong>7+ projects</strong> using <strong>C</strong> and <strong>5+ projects</strong> using <strong>Python</strong>. Domains include algorithms, small utilities, CLI tools, and security experiments.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECT CARDS (placeholders without external links) -->
+    <section class="section" aria-label="Projects">
+      <h2>Selected Work</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>Packet Sniffer (C)</h3>
+          <p>A low-level packet inspection tool to learn about network protocols and security monitoring. Built in C with raw sockets (learning project).</p>
+        </article>
+        <article class="card">
+          <h3>Log Analyzer (Python)</h3>
+          <p>Parses and visualizes server logs, flags anomalies with basic heuristics. CLI-based. Focus on clean parsing & reporting.</p>
+        </article>
+        <article class="card">
+          <h3>Linux Dotfiles</h3>
+          <p>Custom shell, editor, and terminal configs for a productive Linux workflow. Emphasis on security hardening and sleek UI.</p>
+        </article>
+        <article class="card">
+          <h3>ML Playground</h3>
+          <p>Collection of notebooks converted to notes: linear models, trees, and basic CV experiments—no external assets used here.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section class="section" aria-label="Skills">
+      <h2>Skills</h2>
+      <div class="grid">
+        <div class="card"><h3>Languages</h3><p>Python, C, Bash (basics)</p></div>
+        <div class="card"><h3>Security</h3><p>Networking basics, packet capture, Linux hardening (learning)</p></div>
+        <div class="card"><h3>AI/ML</h3><p>Foundations: supervised learning, model evaluation</p></div>
+        <div class="card"><h3>Platforms</h3><p>Linux (preferred), Windows</p></div>
+      </div>
+    </section>
+
+    <!-- CONTACT (no external links) -->
+    <section class="section" aria-label="Contact">
+      <h2>Get in Touch</h2>
+      <div class="card">
+        <p>Looking for collaborations in <strong>Cybersecurity</strong> or <strong>AI/ML</strong>. You can package this page and host it directly—no external links or libraries are used.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">© <span id="y">2025</span> Tejas Arora — Blue • Green • Black theme</div>
+  </footer>
+
+  <!-- Note: The brief calls for HTML+CSS only. Cursor-following effects typically need JavaScript. 
+       This version provides CSS-only animations (rotating 3D cube, animated background, hover tilt, custom green cursor).
+  -->
+</body>
+</html>
